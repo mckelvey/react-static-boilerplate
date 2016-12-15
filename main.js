@@ -21,6 +21,7 @@ import router from './core/router';
 import history from './core/history';
 
 let routes = require('./routes.json'); // Loaded with utils/routes-loader.js
+
 const container = document.getElementById('container');
 
 function renderComponent(component) {
@@ -29,7 +30,7 @@ function renderComponent(component) {
 
 // Find and render a web page matching the current URL path,
 // if such page is not found then render an error page (see routes.json, core/router.js)
-function render(location, action) {
+function render(location) {
   router.resolve(routes, location)
     .then(renderComponent)
     .catch(error => router.resolve(routes, { ...location, error }).then(renderComponent));
@@ -38,7 +39,7 @@ function render(location, action) {
 // Handle client-side navigation by using HTML5 History API
 // For more information visit https://github.com/ReactJSTraining/history/tree/master/docs#readme
 history.listen(render);
-render(history.location, history.action);
+render(history.location);
 
 // Eliminates the 300ms delay between a physical tap
 // and the firing of a click event on mobile browsers
@@ -49,6 +50,6 @@ FastClick.attach(document.body);
 if (module.hot) {
   module.hot.accept('./routes.json', () => {
     routes = require('./routes.json'); // eslint-disable-line global-require
-    render(history.location, history.action);
+    render(history.location);
   });
 }

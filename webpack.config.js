@@ -10,6 +10,7 @@
 
 /* eslint-disable global-require */
 
+
 const path = require('path');
 const webpack = require('webpack');
 const AssetsPlugin = require('assets-webpack-plugin');
@@ -147,7 +148,7 @@ const config = {
 
   // The list of plugins for PostCSS
   // https://github.com/postcss/postcss
-  postcss(bundler) {
+  postcss() {
     return [
       // Transfer @import rule by inlining content, e.g. @import 'normalize.css'
       // https://github.com/postcss/postcss-import

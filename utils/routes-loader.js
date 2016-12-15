@@ -8,6 +8,8 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
+/* eslint-disable import/no-dynamic-require */
+
 const toRegExp = require('path-to-regexp');
 
 function escape(text) {
@@ -38,7 +40,8 @@ module.exports = function routesLoader(source) {
   const output = ['[\n'];
   const routes = JSON.parse(source);
 
-  for (const route of routes) {
+  for (let routeIndex = 0; routeIndex < routes.length; routeIndex += 1) {
+    const route = routes[routeIndex];
     const keys = [];
     const pattern = toRegExp(route.path, keys);
     const require = route.chunk && route.chunk === 'main' ?
