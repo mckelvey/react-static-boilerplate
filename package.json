@@ -48,6 +48,7 @@
     "json-loader": "^0.5.4",
     "markdown-it": "^7.0.0",
     "mocha": "^2.5.3",
+    "npm-check-updates": "^2.8.8",
     "path-to-regexp": "^1.5.3",
     "pixrem": "^3.0.1",
     "pleeease-filters": "^3.0.0",
