@@ -44,8 +44,8 @@ tasks.set('clean', () => del(['public/dist/*', '!public/dist/.git'], { dot: true
 tasks.set('html', () => {
   const webpackConfig = require('./webpack.config');
   const assets = JSON.parse(fs.readFileSync('./public/dist/assets.json', 'utf8'));
-  const template = fs.readFileSync('./public/index.ejs', 'utf8');
-  const render = ejs.compile(template, { filename: './public/index.ejs' });
+  const template = fs.readFileSync('./templates/index.ejs', 'utf8');
+  const render = ejs.compile(template, { filename: './templates/index.ejs' });
   const output = render({ debug: webpackConfig.debug, bundle: assets.main.js, config });
   fs.writeFileSync('./public/index.html', output, 'utf8');
 });
@@ -57,8 +57,8 @@ tasks.set('sitemap', () => {
   const urls = require('./routes.json')
     .filter(x => !x.path.includes(':'))
     .map(x => ({ loc: x.path }));
-  const template = fs.readFileSync('./public/sitemap.ejs', 'utf8');
-  const render = ejs.compile(template, { filename: './public/sitemap.ejs' });
+  const template = fs.readFileSync('./templates/sitemap.ejs', 'utf8');
+  const render = ejs.compile(template, { filename: './templates/sitemap.ejs' });
   const output = render({ config, urls });
   fs.writeFileSync('public/sitemap.xml', output, 'utf8');
 });
@@ -125,8 +125,8 @@ tasks.set('start', () => {
     compiler.plugin('done', stats => {
       // Generate index.html page
       const bundle = stats.compilation.chunks.find(x => x.name === 'main').files[0];
-      const template = fs.readFileSync('./public/index.ejs', 'utf8');
-      const render = ejs.compile(template, { filename: './public/index.ejs' });
+      const template = fs.readFileSync('./templates/index.ejs', 'utf8');
+      const render = ejs.compile(template, { filename: './templates/index.ejs' });
       const output = render({ debug: true, bundle: `/dist/${bundle}`, config });
       fs.writeFileSync('./public/index.html', output, 'utf8');
 
