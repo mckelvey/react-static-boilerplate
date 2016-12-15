@@ -112,7 +112,7 @@ tasks.set('publish', () => {
 tasks.set('start', () => {
   let count = 0;
   global.HMR = !process.argv.includes('--no-hmr'); // Hot Module Replacement (HMR)
-  return run('clean').then(() => new Promise(resolve => {
+  return run('clean').then(() => new Promise((resolve) => {
     const bs = require('browser-sync').create();
     const webpackConfig = require('./webpack.config');
     const compiler = webpack(webpackConfig);
@@ -122,7 +122,7 @@ tasks.set('start', () => {
       publicPath: webpackConfig.output.publicPath,
       stats: webpackConfig.stats,
     });
-    compiler.plugin('done', stats => {
+    compiler.plugin('done', (stats) => {
       // Generate index.html page
       const bundle = stats.compilation.chunks.find(x => x.name === 'main').files[0];
       const template = fs.readFileSync('./templates/index.ejs', 'utf8');
@@ -132,7 +132,8 @@ tasks.set('start', () => {
 
       // Launch Browsersync after the initial bundling is complete
       // For more information visit https://browsersync.io/docs/options
-      if (++count === 1) {
+      count += 1;
+      if (count === 1) {
         bs.init({
           port: process.env.PORT || 3000,
           ui: { port: Number(process.env.PORT || 3000) + 1 },

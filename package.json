@@ -40,7 +40,7 @@
     "eslint": "^3.1.1",
     "eslint-config-airbnb": "^13.0.0",
     "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-jsx-a11y": "^3.0.2",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-react": "^6.8.0",
     "file-loader": "^0.9.0",
     "firebase-tools": "^3.0.4",
@@ -66,6 +66,7 @@
     "postcss-nesting": "^2.3.1",
     "postcss-selector-matches": "^2.0.1",
     "postcss-selector-not": "^2.0.0",
+    "react": "^15.2.1",
     "react-hot-loader": "^3.0.0-beta.2",
     "s3": "^4.4.0",
     "style-loader": "^0.13.1",
@@ -89,11 +90,21 @@
   },
   "eslintConfig": {
     "parser": "babel-eslint",
-    "extends": "airbnb"
+    "extends": "airbnb",
+    "env": {
+      "browser": true
+    },
+    "rules": {
+      "import/no-extraneous-dependencies": ["error", {"devDependencies": ["./*.js", "./utils/*.js", "./test/*.js"]}],
+      "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+      "react/no-danger": [0]
+    }
   },
   "stylelint": {
     "extends": "stylelint-config-standard",
     "rules": {
+      "block-closing-brace-empty-line-before": null,
+      "rule-nested-empty-line-before": null,
       "string-quotes": "single"
     }
   },

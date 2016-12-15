@@ -40,7 +40,7 @@ function matchURI(route, path) {
 
   const params = Object.create(null);
 
-  for (let i = 1; i < match.length; i++) {
+  for (let i = 1; i < match.length; i += 1) {
     params[route.keys[i - 1].name] = match[i] !== undefined ? decodeParam(match[i]) : undefined;
   }
 
@@ -50,41 +50,41 @@ function matchURI(route, path) {
 // Find the route matching the specified location (context), fetch the required data,
 // instantiate and return a React component
 function resolve(routes, context) {
-  for (const route of routes) {
+  for (let routeIndex = 0; routeIndex < routes.length; routeIndex += 1) {
+    const route = routes[routeIndex];
     const params = matchURI(route, context.error ? '/error' : context.pathname);
 
-    if (!params) {
-      continue;
+    if (params) {
+      const query = parse(context.search);
+
+      // Check if the route has any data requirements, for example:
+      // { path: '/tasks/:id', data: { task: 'GET /api/tasks/$id' }, page: './pages/task' }
+      if (route.data) {
+        // Load page component and all required data in parallel
+        const keys = Object.keys(route.data);
+        return Promise.all([
+          route.load(),
+          ...keys.map((key) => {
+            const request = route.data[key];
+            const method = request.substring(0, request.indexOf(' ')); // GET
+            let url = request.substr(request.indexOf(' ') + 1);      // /api/tasks/$id
+            Object.keys(params).forEach((k) => {
+              url = url.replace(`${k}`, params[k]);
+            });
+            Object.keys(query).forEach((k) => {
+              url = url.replace(`${k}`, query[k]);
+            });
+            return fetch(url, { method }).then(resp => resp.json());
+          }),
+        ]).then(([Page, ...data]) => {
+          const props = keys.reduce((result, key, i) => ({ ...result, [key]: data[i] }), {});
+          return <Page route={{ ...route, params }} error={context.error} {...props} />;
+        });
+      }
+
+      return route.load()
+        .then(Page => <Page route={{ ...route, params, query }} error={context.error} />);
     }
-
-    const query = parse(context.search);
-
-    // Check if the route has any data requirements, for example:
-    // { path: '/tasks/:id', data: { task: 'GET /api/tasks/$id' }, page: './pages/task' }
-    if (route.data) {
-      // Load page component and all required data in parallel
-      const keys = Object.keys(route.data);
-      return Promise.all([
-        route.load(),
-        ...keys.map(key => {
-          const request = route.data[key];
-          const method = request.substring(0, request.indexOf(' ')); // GET
-          let url = request.substr(request.indexOf(' ') + 1);      // /api/tasks/$id
-          Object.keys(params).forEach((k) => {
-            url = url.replace(`${k}`, params[k]);
-          });
-          Object.keys(query).forEach((k) => {
-            url = url.replace(`${k}`, query[k]);
-          });
-          return fetch(url, { method }).then(resp => resp.json());
-        }),
-      ]).then(([Page, ...data]) => {
-        const props = keys.reduce((result, key, i) => ({ ...result, [key]: data[i] }), {});
-        return <Page route={{ ...route, params }} error={context.error} {...props} />;
-      });
-    }
-
-    return route.load().then(Page => <Page route={{ ...route, params, query }} error={context.error} />);
   }
 
   const error = new Error('Page not found');

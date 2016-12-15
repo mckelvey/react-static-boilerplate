@@ -2,5 +2,9 @@
   "name": "Button",
   "version": "0.0.0",
   "private": true,
-  "main": "./Button.js"
+  "main": "./Button.js",
+  "dependencies": {
+    "classnames": "^2.2.5",
+    "react": "^15.2.1"
+  }
 }
