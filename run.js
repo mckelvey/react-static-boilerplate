@@ -17,10 +17,11 @@ const webpack = require('webpack');
 
 // TODO: Update configuration settings
 const config = {
-  title: 'React Static Boilerplate',        // Your website title
-  url: 'https://rsb.kriasoft.com',          // Your website URL
-  project: 'react-static-boilerplate',      // Firebase project. See README.md -> How to Deploy
-  trackingID: 'UA-XXXXX-Y',                 // Google Analytics Site's ID
+  title: 'React Static Boilerplate',                          // Your website title
+  url: 'http://testing-react-static-boilerplate.surge.sh',    // Your website URL
+  domain: 'testing-react-static-boilerplate.surge.sh',        // Your website domain
+  project: './public',                                        // Surge project folder
+  trackingID: 'UA-XXXXX-Y',                                   // Google Analytics Site's ID
 };
 
 const tasks = new Map(); // The collection of automation tasks ('clean', 'build', 'publish', etc.)
@@ -44,8 +45,8 @@ tasks.set('clean', () => del(['public/dist/*', '!public/dist/.git'], { dot: true
 tasks.set('html', () => {
   const webpackConfig = require('./webpack.config');
   const assets = JSON.parse(fs.readFileSync('./public/dist/assets.json', 'utf8'));
-  const template = fs.readFileSync('./public/index.ejs', 'utf8');
-  const render = ejs.compile(template, { filename: './public/index.ejs' });
+  const template = fs.readFileSync('./templates/index.ejs', 'utf8');
+  const render = ejs.compile(template, { filename: './templates/index.ejs' });
   const output = render({ debug: webpackConfig.debug, bundle: assets.main.js, config });
   fs.writeFileSync('./public/index.html', output, 'utf8');
 });
@@ -57,8 +58,8 @@ tasks.set('sitemap', () => {
   const urls = require('./routes.json')
     .filter(x => !x.path.includes(':'))
     .map(x => ({ loc: x.path }));
-  const template = fs.readFileSync('./public/sitemap.ejs', 'utf8');
-  const render = ejs.compile(template, { filename: './public/sitemap.ejs' });
+  const template = fs.readFileSync('./templates/sitemap.ejs', 'utf8');
+  const render = ejs.compile(template, { filename: './templates/sitemap.ejs' });
   const output = render({ config, urls });
   fs.writeFileSync('public/sitemap.xml', output, 'utf8');
 });
@@ -93,17 +94,16 @@ tasks.set('build', () => {
 });
 
 //
-// Build and publish the website
+// Build and publish the website on surge.sh
+// (Sign into your surge account via the CLI first.)
 // -----------------------------------------------------------------------------
 tasks.set('publish', () => {
-  const firebase = require('firebase-tools');
+  const surge = require('gulp-surge');
   return run('build')
-    .then(() => firebase.login({ nonInteractive: false }))
-    .then(() => firebase.deploy({
+    .then(() => surge({
       project: config.project,
-      cwd: __dirname,
-    }))
-    .then(() => { setTimeout(() => process.exit()); });
+      domain: config.domain,
+    }));
 });
 
 //
@@ -125,8 +125,8 @@ tasks.set('start', () => {
     compiler.plugin('done', stats => {
       // Generate index.html page
       const bundle = stats.compilation.chunks.find(x => x.name === 'main').files[0];
-      const template = fs.readFileSync('./public/index.ejs', 'utf8');
-      const render = ejs.compile(template, { filename: './public/index.ejs' });
+      const template = fs.readFileSync('./templates/index.ejs', 'utf8');
+      const render = ejs.compile(template, { filename: './templates/index.ejs' });
       const output = render({ debug: true, bundle: `/dist/${bundle}`, config });
       fs.writeFileSync('./public/index.html', output, 'utf8');
 
