@@ -29,7 +29,7 @@ function renderComponent(component) {
 
 // Find and render a web page matching the current URL path,
 // if such page is not found then render an error page (see routes.json, core/router.js)
-function render(location) {
+function render(location, action) {
   router.resolve(routes, location)
     .then(renderComponent)
     .catch(error => router.resolve(routes, { ...location, error }).then(renderComponent));
@@ -38,7 +38,7 @@ function render(location) {
 // Handle client-side navigation by using HTML5 History API
 // For more information visit https://github.com/ReactJSTraining/history/tree/master/docs#readme
 history.listen(render);
-render(history.getCurrentLocation());
+render(history.location, history.action);
 
 // Eliminates the 300ms delay between a physical tap
 // and the firing of a click event on mobile browsers
@@ -49,6 +49,6 @@ FastClick.attach(document.body);
 if (module.hot) {
   module.hot.accept('./routes.json', () => {
     routes = require('./routes.json'); // eslint-disable-line global-require
-    render(history.getCurrentLocation());
+    render(history.location, history.action);
   });
 }

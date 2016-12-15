@@ -9,6 +9,7 @@
  */
 
 import React from 'react';
+import { parse } from 'query-string';
 
 function decodeParam(val) {
   if (!(typeof val === 'string' || val.length === 0)) {
@@ -56,6 +57,8 @@ function resolve(routes, context) {
       continue;
     }
 
+    const query = parse(context.search);
+
     // Check if the route has any data requirements, for example:
     // { path: '/tasks/:id', data: { task: 'GET /api/tasks/$id' }, page: './pages/task' }
     if (route.data) {
@@ -64,12 +67,14 @@ function resolve(routes, context) {
       return Promise.all([
         route.load(),
         ...keys.map(key => {
-          const query = route.data[key];
-          const method = query.substring(0, query.indexOf(' ')); // GET
-          let url = query.substr(query.indexOf(' ') + 1);      // /api/tasks/$id
-          // TODO: Optimize
+          const request = route.data[key];
+          const method = request.substring(0, request.indexOf(' ')); // GET
+          let url = request.substr(request.indexOf(' ') + 1);      // /api/tasks/$id
           Object.keys(params).forEach((k) => {
             url = url.replace(`${k}`, params[k]);
+          });
+          Object.keys(query).forEach((k) => {
+            url = url.replace(`${k}`, query[k]);
           });
           return fetch(url, { method }).then(resp => resp.json());
         }),
@@ -79,7 +84,7 @@ function resolve(routes, context) {
       });
     }
 
-    return route.load().then(Page => <Page route={{ ...route, params }} error={context.error} />);
+    return route.load().then(Page => <Page route={{ ...route, params, query }} error={context.error} />);
   }
 
   const error = new Error('Page not found');

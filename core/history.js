@@ -8,7 +8,8 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import createBrowserHistory from 'history/lib/createBrowserHistory';
-import useQueries from 'history/lib/useQueries';
+import createHistory from 'history/createBrowserHistory'
 
-export default useQueries(createBrowserHistory)();
+const history = createHistory();
+
+export default history;
